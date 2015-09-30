@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     // Read in the data. This can fail if no valid
     // input filename is given.
     try {
-		cout << "begine read" << endl;
+		cout << "begin read" << endl;
         read_csv(fn_csv, images, labels);
 		cout << "csv read" << endl;
     } catch (cv::Exception& e) {
