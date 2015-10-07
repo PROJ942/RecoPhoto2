@@ -17,8 +17,8 @@
 		732FB0BC1BA9A8B4003A40A8 /* libopencv_nonfree.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 732FB0B21BA9A8B4003A40A8 /* libopencv_nonfree.2.4.9.dylib */; };
 		732FB0BD1BA9A8B4003A40A8 /* libopencv_objdetect.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 732FB0B31BA9A8B4003A40A8 /* libopencv_objdetect.2.4.9.dylib */; };
 		732FB0BE1BA9A8B4003A40A8 /* libopencv_ocl.2.4.9.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 732FB0B41BA9A8B4003A40A8 /* libopencv_ocl.2.4.9.dylib */; };
+		7359950E1BC2C30A00B45C32 /* test_ocv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732FB0C11BA9AD05003A40A8 /* test_ocv.cpp */; };
 		73A907761BAAFA5A00719D75 /* csv.ext in CopyFiles */ = {isa = PBXBuildFile; fileRef = 73A907751BAAFA4000719D75 /* csv.ext */; };
-		73AEF25D1BB9587E00CDD180 /* OpenCV_linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732FB0BF1BA9A8DC003A40A8 /* OpenCV_linux.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1310,7 +1310,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73AEF25D1BB9587E00CDD180 /* OpenCV_linux.cpp in Sources */,
+				7359950E1BC2C30A00B45C32 /* test_ocv.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

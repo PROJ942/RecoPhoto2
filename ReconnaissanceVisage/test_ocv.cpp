@@ -207,6 +207,29 @@ int main(int argc, char* argv[])
     while (difference < 100 && colonneDroit >0);
     std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;
     
+    //detection du bas
+    int debut4 = colonneGauche;
+    int fin = colonneDroit;
+    do {
+        moy1=0;
+        moy2=0;
+        difference=0;
+        for(int i=0;i<((rows-ligneHautTete)/80);i++){
+            for(int j=0;j<40;j++){
+                moy1+=imgGray.at<uchar>(debut3+j+(i*40),colonneDroit);
+                moy2+=imgGray.at<uchar>((debut3+j+(i*40)),colonneDroit-1);
+            }
+            moy1/=40;
+            moy2/=40;
+            diff = (moy1-moy2)*(moy1-moy2);
+            if(diff>difference)
+                difference=diff;
+        }
+        colonneDroit--;
+    }
+    while (difference < 100 && colonneDroit >0);
+    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;
+    
     
     //Decoupe de l'image (Rect(x,y,w,h)
     Rect roi(colonneGauche,ligneHautTete,(colonneDroit-colonneGauche),(colonneDroit-colonneGauche)*1.3);
