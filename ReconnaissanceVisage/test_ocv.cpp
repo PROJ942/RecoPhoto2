@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     waitKey(0);
     
     //detection du haut de la tete
-    do {
+    /*do {
         moy1=0;
         moy2=0;
         difference=0;
@@ -178,12 +178,32 @@ int main(int argc, char* argv[])
     while (difference < 100 && colonneDroit >0);
     std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;*/
     
+    // Recherche de contours
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchie;
+    findContours(imgGray, contours,  hierarchie, RETR_TREE,  CHAIN_APPROX_SIMPLE, Point(0,0));
     
+    // Pour chaque contour
+    // Approximation ˆ un polygone
+    for(int i=1;i<contours.size();i++){
+        
+        
+        Rect box = boundingRect(contours[i]);
+        //drawContours(image, contours, i, Scalar(0,0,255), 2,8,hierarchie,0,Point());
+        
+        // drawing the resulting image
+        rectangle(img,box,cv::Scalar(0,0,255), 3, 8, 0);
+        
+    }
+    
+    
+
+
     //Decoupe de l'image (Rect(x,y,w,h)
-    Rect roi(colonneGauche,ligneHautTete,(colonneDroit-colonneGauche),(colonneDroit-colonneGauche)*1.3);
-    Mat cropped=img(roi);
-    imshow("Cropped", cropped);
-    
+    //Rect roi(colonneGauche,ligneHautTete,(colonneDroit-colonneGauche),(colonneDroit-colonneGauche)*1.3);
+    //Mat cropped=img(roi);
+    imshow("Cropped", img);
+
 	waitKey(0);
 
 	return 0;
