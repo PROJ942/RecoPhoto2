@@ -6,6 +6,7 @@
 #include "opencv2/highgui/highgui.hpp"
 
 using namespace cv;
+using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -18,25 +19,22 @@ int main(int argc, char* argv[])
 
 	// recupération et affichage des couleurs d'un pixel
 	Vec3b coul, coul2;
-	coul=img.at<Vec3b>(100,100);
-	std::cout<<"Couleur="<<coul<<std::endl;
-	printf("%d %d %d \n",int(coul[0]),int(coul[1]),int(coul[2]));
-	waitKey(0);
-
-	// récupération d'une partie d'une image (Rect(x,y,w,h)
-	/*Rect roi(10,20,400,70);
-	Mat cropped=img(roi);
-	imshow("Cropped Example1", cropped);*/
+    	waitKey(0);
     
-    //largeur de l'image
+    //taille de l'image
     int cols = img.cols;
     int rows = img.rows;
     
     //Mise ˆ blanc des pixels dont le rouge n'est prŽdominant
+    
     for (int i=0; i<cols; i++) {
         for(int j=0;j<rows;j++){
             coul=imgRouge.at<Vec3b>(j,i);
-            if((int)coul[2]<=((int)coul[0]+10) || (int)coul[2]<=((int)coul[1]+5)){
+            float ratio1 = ((float)coul[2]-(float)coul[1])/((float)coul[2]+(float)coul[1]);
+            float ratio2 = (float)coul[0]/((float)coul[2]+(float)coul[1]);
+            //cout<<"ratio 1 : "<<ratio1<<" ratio 2 : "<<ratio2<<endl;
+           // if((int)coul[2]<=((int)coul[0]+10) || (int)coul[2]<=((int)coul[1]+5)){
+            if(ratio1<0.02 || ratio1>0.45 || ratio2>0.5 || ratio2<0.1){
                 coul[0]=255;
                 coul[1]=255;
                 coul[2]=255;
@@ -44,7 +42,34 @@ int main(int argc, char* argv[])
             }
         }
     }
-    imshow("Rouge", imgRouge);
+    
+    
+    imshow("Mask", imgRouge);
+    waitKey(0);
+    
+    //Passage en niveau de gris
+    Mat imgGray;
+    cvtColor( imgRouge, imgGray, CV_BGR2GRAY );
+    //blur pour Žliminer les artefacts
+    blur( imgGray, imgGray, Size(6,6) );
+    
+    imshow("Gray et blur", imgGray);
+    waitKey(0);
+    
+    /*Ouverture*/
+    int erosion_size = 10;
+    Mat element = getStructuringElement(MORPH_ELLIPSE,
+                                        Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                        Point( erosion_size, erosion_size ));
+    erode(imgGray,imgGray,element);
+    dilate(imgGray,imgGray, element);
+    
+    /*Fermeture*/
+    dilate(imgGray,imgGray, element);
+    erode(imgGray,imgGray,element);
+
+    
+    imshow("Erode", imgGray);
     waitKey(0);
 
     std::cout<<"lignes : "<<rows<<" et colonnes : "<<cols<<std::endl;
@@ -54,86 +79,9 @@ int main(int argc, char* argv[])
     int colonneDroit=cols-10;
     int moy1, moy2, diff;
     int difference=0;
-    /*
-    //detection du haut de la tete
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for (int i=0; i<(cols/40); i++) {
-            for(int j=0;j<40;j++){
-                coul=img.at<Vec3b>(ligneHautTete,debut1+j+(i*40));
-                moy1+=coul[0]+coul[1]+coul[2];
-                coul2=img.at<Vec3b>((ligneHautTete+1),debut1+j+(i*40));
-                moy2+=coul2[0]+coul2[1]+coul2[2];
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        ligneHautTete++;
-    }
-    while (difference < 100 && ligneHautTete <rows);
-    std::cout<<"Ligne du haut de la tete : "<<ligneHautTete<<std::endl;
     
-    //detection du cote gauche
-    int debut2 = 0;
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for(int i=0;i<(rows/80);i++){
-            for(int j=0;j<40;j++){
-                coul=img.at<Vec3b>(debut2+j+(i*40),colonneGauche);
-                moy1+=coul[0]+coul[1]+coul[2];
-                coul2=img.at<Vec3b>((debut2+j+(i*40)),colonneGauche+1);
-                moy2+=coul2[0]+coul2[1]+coul2[2];
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        colonneGauche++;
-    }
-    while (difference < 100 && colonneGauche <cols);
-    std::cout<<"colonne a gauche de la tete : "<<colonneGauche<<std::endl;
-    
-    //detection du cote droit
-    int debut3 = 0;
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for(int i=0;i<(rows/80);i++){
-            for(int j=0;j<40;j++){
-                coul=img.at<Vec3b>(debut3+j+(i*40),colonneDroit);
-                moy1+=coul[0]+coul[1]+coul[2];
-                coul2=img.at<Vec3b>((debut3+j+(i*40)),colonneDroit-1);
-                moy2+=coul2[0]+coul2[1]+coul2[2];
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        colonneDroit--;
-    }
-    while (difference < 100 && colonneDroit >0);
-    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;*/
 
-    //Passage en niveau de gris
-    Mat imgGray;
-    cvtColor( imgRouge, imgGray, CV_BGR2GRAY );
-    //blur pour Žliminer les artefacts
-    blur( imgGray, imgGray, Size(6,6) );
     
-    imshow("Gray et blur", imgGray);
-    waitKey(0);
     
     // Threshold pour avoir une image binaire
     threshold(imgGray,imgGray,180,255,1);
@@ -208,7 +156,7 @@ int main(int argc, char* argv[])
     std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;
     
     //detection du bas
-    int debut4 = colonneGauche;
+    /*int debut4 = colonneGauche;
     int fin = colonneDroit;
     do {
         moy1=0;
@@ -228,7 +176,7 @@ int main(int argc, char* argv[])
         colonneDroit--;
     }
     while (difference < 100 && colonneDroit >0);
-    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;
+    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;*/
     
     
     //Decoupe de l'image (Rect(x,y,w,h)
