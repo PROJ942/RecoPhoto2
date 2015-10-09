@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 {
 
 	// lecture et affichage  image
-	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/FullSizeRender.jpg", 1 );
+	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/IMG_4474.jpg", 1 );
 	imshow("Example1", img);
     
     Mat imgRouge = img.clone();
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
             float ratio2 = (float)coul[0]/((float)coul[2]+(float)coul[1]);
             //cout<<"ratio 1 : "<<ratio1<<" ratio 2 : "<<ratio2<<endl;
            // if((int)coul[2]<=((int)coul[0]+10) || (int)coul[2]<=((int)coul[1]+5)){
-            if(ratio1<0.02 || ratio1>0.45 || ratio2>0.5 || ratio2<0.1){
+            if(ratio1<0.02 || ratio1>0.45 || ratio2>0.5 || ratio2<0.1 || (int)coul[2]<=((int)coul[0]+25) || (int)coul[2]<=((int)coul[1]+15) || (int)coul[2]>245){
                 coul[0]=255;
                 coul[1]=255;
                 coul[2]=255;
@@ -56,145 +56,61 @@ int main(int argc, char* argv[])
     imshow("Gray et blur", imgGray);
     waitKey(0);
     
+    // Threshold pour avoir une image binaire
+    threshold(imgGray,imgGray,170,255,1);
+    imshow("Binaire", imgGray);
+    waitKey(0);
+    
     /*Ouverture*/
-    int erosion_size = 10;
+    int erosion_size = 15;
     Mat element = getStructuringElement(MORPH_ELLIPSE,
                                         Size( 2*erosion_size + 1, 2*erosion_size+1 ),
                                         Point( erosion_size, erosion_size ));
     erode(imgGray,imgGray,element);
     dilate(imgGray,imgGray, element);
     
+    imshow("ouverture", imgGray);
+    waitKey(0);
+    
     /*Fermeture*/
+    erosion_size = 10;
+    element = getStructuringElement(MORPH_ELLIPSE,
+                                        Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                        Point( erosion_size, erosion_size ));
+
     dilate(imgGray,imgGray, element);
-    erode(imgGray,imgGray,element);
+    //erode(imgGray,imgGray,element);
 
     
-    imshow("Erode", imgGray);
+    imshow("fermeture", imgGray);
     waitKey(0);
 
-    std::cout<<"lignes : "<<rows<<" et colonnes : "<<cols<<std::endl;
-    int debut1 = 0;
-    int ligneHautTete=10;
-    int colonneGauche=10;
-    int colonneDroit=cols-10;
-    int moy1, moy2, diff;
-    int difference=0;
-    
-
-    
-    
-    // Threshold pour avoir une image binaire
-    threshold(imgGray,imgGray,180,255,1);
-    imshow("Binaire", imgGray);
-    waitKey(0);
-    
-    //detection du haut de la tete
-    /*do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for (int i=0; i<(cols/40); i++) {
-            for(int j=0;j<40;j++){
-                moy1+=imgGray.at<uchar>(ligneHautTete,debut1+j+(i*40));
-                moy2+=imgGray.at<uchar>((ligneHautTete+1),debut1+j+(i*40));
-
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
- 
-        ligneHautTete++;
-    }
-    while (difference < 100 && ligneHautTete <rows);
-    std::cout<<"Ligne du haut de la tete : "<<ligneHautTete<<std::endl;
-    
-    //detection du cote gauche
-    int debut2 = ligneHautTete;
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for(int i=1;i<((rows-ligneHautTete)/80);i++){
-            for(int j=0;j<40;j++){
-                moy1+=imgGray.at<uchar>(debut2+j+(i*40),colonneGauche);
-                moy2+=imgGray.at<uchar>((debut2+j+(i*40)),colonneGauche+1);
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        colonneGauche++;
-    }
-    while (difference < 100 && colonneGauche <cols);
-    std::cout<<"colonne a gauche de la tete : "<<colonneGauche<<std::endl;
-    
-    //detection du cote droit
-    int debut3 = ligneHautTete;
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for(int i=0;i<((rows-ligneHautTete)/80);i++){
-            for(int j=0;j<40;j++){
-                moy1+=imgGray.at<uchar>(debut3+j+(i*40),colonneDroit);
-                moy2+=imgGray.at<uchar>((debut3+j+(i*40)),colonneDroit-1);
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        colonneDroit--;
-    }
-    while (difference < 100 && colonneDroit >0);
-    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;
-    
-    //detection du bas
-    /*int debut4 = colonneGauche;
-    int fin = colonneDroit;
-    do {
-        moy1=0;
-        moy2=0;
-        difference=0;
-        for(int i=0;i<((rows-ligneHautTete)/80);i++){
-            for(int j=0;j<40;j++){
-                moy1+=imgGray.at<uchar>(debut3+j+(i*40),colonneDroit);
-                moy2+=imgGray.at<uchar>((debut3+j+(i*40)),colonneDroit-1);
-            }
-            moy1/=40;
-            moy2/=40;
-            diff = (moy1-moy2)*(moy1-moy2);
-            if(diff>difference)
-                difference=diff;
-        }
-        colonneDroit--;
-    }
-    while (difference < 100 && colonneDroit >0);
-    std::cout<<"colonne a droite de la tete : "<<colonneDroit<<std::endl;*/
+    //std::cout<<"lignes : "<<rows<<" et colonnes : "<<cols<<std::endl;
     
     // Recherche de contours
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchie;
     findContours(imgGray, contours,  hierarchie, RETR_TREE,  CHAIN_APPROX_SIMPLE, Point(0,0));
-    
+    cout<<"nb de contours trouves : "<<contours.size()<<endl;
     // Pour chaque contour
     // Approximation ˆ un polygone
-    for(int i=1;i<contours.size();i++){
+    //box a garder
+    int maxBoxHeight=0;
+    Rect boxMax;
+    for(int i=0;i<contours.size();i++){
         
         
         Rect box = boundingRect(contours[i]);
-        //drawContours(image, contours, i, Scalar(0,0,255), 2,8,hierarchie,0,Point());
-        
-        // drawing the resulting image
-        rectangle(img,box,cv::Scalar(0,0,255), 3, 8, 0);
+        cout<<"box trouvee, largeur * hauteur : "<<box.width<<" "<<box.height<<endl;
+        //drawContours(img, contours, i, Scalar(0,0,255), 2,8,hierarchie,0,Point());
+        if (box.height>maxBoxHeight) {
+            boxMax=box;
+            
+        }
         
     }
+    // drawing the resulting image
+    rectangle(img,boxMax,cv::Scalar(0,0,255), 1, 8, 0);
     
     
 
