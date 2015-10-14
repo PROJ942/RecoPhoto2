@@ -13,6 +13,7 @@ using namespace std;
 
 void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     
+    resize(pictureToProcess, pictureToProcess, Size(600,pictureToProcess.rows*600/pictureToProcess.cols));
     Mat pictureMask = pictureToProcess.clone();
     
     // definition d'un vecteur pour les couleurs d'un pixel
@@ -43,7 +44,7 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     blur( pictureMask, pictureMask, Size(6,6) );
     
     // Threshold pour avoir une image binaire
-    threshold(pictureMask,pictureMask,170,255,1);
+    threshold(pictureMask,pictureMask,220,255,1);
     
     /*Ouverture*/
     int erosion_size = 15;
@@ -54,10 +55,10 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     dilate(pictureMask,pictureMask, element);
     
     /*Fermeture*/
-    erosion_size = 10;
+    int dilatationion_size = 5;
     element = getStructuringElement(MORPH_ELLIPSE,
-                                    Size( 2*erosion_size + 1, 2*erosion_size+1 ),
-                                    Point( erosion_size, erosion_size ));
+                                    Size( 2*dilatationion_size + 1, 2*dilatationion_size+1 ),
+                                    Point( dilatationion_size, dilatationion_size ));
     
     dilate(pictureMask,pictureMask, element);
     //erode(imgGray,imgGray,element);
@@ -81,6 +82,9 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
         }
         
     }
+    rectangle(pictureMask, boxMax, Scalar(255,255,255),1);
+    cout<<boxMax.size()<<endl;
+
     // cropping the picture with biggest box found
     pictureToProcess=pictureToProcess(boxMax);
     
@@ -105,7 +109,6 @@ void PicturePreProcessing::openBatchOfPictures(char* directoryPath){
         exit(1);
     // on lit le nom du premier élément du dossier
     file = readdir(directory);
-    //cout << file->d_name << endl << to_string(file->d_type) << endl;
     int i=1;
     do{
         //on test si on a affaire à une image
@@ -130,12 +133,14 @@ void PicturePreProcessing::openBatchOfPictures(char* directoryPath){
         
         if(ext==jpg|ext==jpeg) {
             Mat pictureToProcess = imread(path+file_name);
+
             this->preProcessPicture(pictureToProcess);
             
             // on enregistre l'image obtenue
-            imwrite(path+to_string(i),pictureToProcess,parameters_jpg);
+            imwrite(path+to_string(i)+".jpg",pictureToProcess,parameters_jpg);
+            i++;
         }
-    }
+        file = readdir(directory);    }
     while (file != NULL);
     closedir(directory);
 
