@@ -85,3 +85,58 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     pictureToProcess=pictureToProcess(boxMax);
     
 }
+
+void PicturePreProcessing::openBatchOfPictures(char* directoryPath){
+    DIR *directory = NULL;
+    struct dirent *file;
+    
+    vector<int> parameters_jpg;
+    parameters_jpg.push_back(CV_IMWRITE_JPEG_QUALITY) ;
+    parameters_jpg.push_back(100) ;
+    string outPath("output/");
+    
+    // on récupère le chemin passé en paramètre
+    const char* dir = directoryPath;
+    string path = dir;
+    cout << path << endl;
+    // on ouvre le dossier
+    directory = opendir(dir);
+    if (directory==NULL)
+        exit(1);
+    // on lit le nom du premier élément du dossier
+    file = readdir(directory);
+    //cout << file->d_name << endl << to_string(file->d_type) << endl;
+    int i=1;
+    do{
+        //on test si on a affaire à une image
+        // Extraction de l'extension
+        string file_name = file->d_name;
+        size_t ext_pos = file_name.find_last_of( '.' );
+        
+        string ext("");
+        string jpg("jpg");
+        string jpeg("jpeg");
+        
+        
+        if ( ext_pos != string::npos )
+        {
+            // 3 manières d'extraire l'entension
+            ext = file_name.substr( ext_pos+1 );
+            //cout << ext <<endl;
+            /*string ext2( file_name, ext_pos );
+             string ext3;
+             ext3.assign( file_name, ext_pos, file_name.size() - ext_pos );*/
+        }
+        
+        if(ext==jpg|ext==jpeg) {
+            Mat pictureToProcess = imread(path+file_name);
+            this->preProcessPicture(pictureToProcess);
+            
+            // on enregistre l'image obtenue
+            imwrite(path+to_string(i),pictureToProcess,parameters_jpg);
+        }
+    }
+    while (file != NULL);
+    closedir(directory);
+
+}

@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 #endif /* PicturePrePocessing_hpp */
 
@@ -19,6 +22,6 @@ class PicturePreProcessing{
     
 public:
     void preProcessPicture(cv::Mat &pictureToProcess);
-    
+    void openBatchOfPictures(char* directoryPath);
     
 };
