@@ -55,10 +55,10 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     dilate(pictureMask,pictureMask, element);
     
     /*Fermeture*/
-    int dilatationion_size = 5;
+    int dilatation_size = 5;
     element = getStructuringElement(MORPH_ELLIPSE,
-                                    Size( 2*dilatationion_size + 1, 2*dilatationion_size+1 ),
-                                    Point( dilatationion_size, dilatationion_size ));
+                                    Size( 2*dilatation_size + 1, 2*dilatation_size+1 ),
+                                    Point( dilatation_size, dilatation_size ));
     
     dilate(pictureMask,pictureMask, element);
     //erode(imgGray,imgGray,element);
