@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     PicturePreProcessing myPicturePreProcessor;
     
     // lecture et affichage  image
-	/*Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/IMG_4467.jpg", 1 );
+	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages/nathan_sartori/IMG_4385.jpg", 1 );
 	imshow("Example1", img);
     waitKey(0);
 
@@ -24,9 +24,9 @@ int main(int argc, char* argv[])
     //Mat cropped=img(roi);
     imshow("Cropped", img);
 
-	waitKey(0);*/
-    
-    myPicturePreProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages/laura_aoustin/");
+	waitKey(0);
+    /*
+    myPicturePreProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages");*/
 
 	return 0;
 }

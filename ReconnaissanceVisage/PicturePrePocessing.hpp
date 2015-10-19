@@ -22,7 +22,15 @@
 class PicturePreProcessing{
     
 public:
+    void initPicturePreProcessingWithJpegParameters();
     void preProcessPicture(cv::Mat &pictureToProcess);
-    void openBatchOfPictures(char* directoryPath);
+    void openBatchOfPictures(std::string directoryPath);
     
+private:
+    cv::vector<int> parameters_jpg;
+    
+    void browseDirectory(std::string path);
+    void readDirectory(DIR* directory, std::string path);
+    bool isJpegPicture(struct dirent *file);
+    bool isDirectory(const char* path);
 };
