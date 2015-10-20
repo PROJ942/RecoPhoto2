@@ -27,10 +27,12 @@ public:
     void preProcessPicture(cv::Mat &pictureToProcess);
     void openBatchOfPictures(std::string directoryPath);
     bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess);
+    void setBaseFile(FILE* baseFile);
+    FILE* getBaseFile();
     
 private:
     cv::vector<int> parameters_jpg;
-    FILE* baseFile;
+    FILE* myBaseFile;
     
     void browseDirectory(std::string path);
     void readDirectory(DIR* directory, std::string path);

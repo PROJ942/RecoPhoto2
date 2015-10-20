@@ -18,6 +18,15 @@ void PicturePreProcessing::initPicturePreProcessingWithJpegParameters(){
     parameters_jpg.push_back(100) ;
 }
 
+#pragma mark getters&setters
+void PicturePreProcessing::setBaseFile(FILE* baseFile){
+    myBaseFile = baseFile;
+}
+FILE* PicturePreProcessing::getBaseFile(){
+    return myBaseFile;
+}
+#pragma mark ---
+
 void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     
     resize(pictureToProcess, pictureToProcess, Size(600,pictureToProcess.rows*600/pictureToProcess.cols));
@@ -105,7 +114,7 @@ bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
     return pictureAdded;
 }
 
-#pragma mark ---
+#pragma mark -------------------------------------------
 #pragma mark private
 void PicturePreProcessing::browseDirectory(string path){
     DIR* currentDirectory;
@@ -140,8 +149,12 @@ void PicturePreProcessing::readDirectory(DIR* directory, string path){
             std::ostringstream img;
             img << i;
             
+            string pathNewImg =path+"/"+/*to_string(i)*/img.str()+".jpg";
             // on enregistre l'image obtenue
-            imwrite(path+"/"+/*to_string(i)*/img.str()+".jpg",pictureToProcess,parameters_jpg);
+            imwrite(pathNewImg,pictureToProcess,parameters_jpg);
+            pathNewImg +="\n";
+            fprintf(myBaseFile, pathNewImg.c_str());
+            pictureToProcess.release();
             i++;
         }
         else if (isDirectory(ent->d_name)){
