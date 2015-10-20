@@ -1,33 +1,33 @@
 //
-//  PicturePrePocessing.cpp
+//  PicturePocessing.cpp
 //  ReconnaissanceVisage
 //
 //  Created by Mikael on 12/10/2015.
 //  Copyright © 2015 mikael. All rights reserved.
 //
 
-#include "PicturePrePocessing.hpp"
+#include "PicturePocessing.hpp"
 
 using namespace cv;
 using namespace std;
 
 #pragma mark public
 
-void PicturePreProcessing::initPicturePreProcessingWithJpegParameters(){
+void PictureProcessing::initPictureProcessingWithJpegParameters(){
     parameters_jpg.push_back(CV_IMWRITE_JPEG_QUALITY) ;
     parameters_jpg.push_back(100) ;
 }
 
 #pragma mark getters&setters
-void PicturePreProcessing::setBaseFile(FILE* baseFile){
+void PictureProcessing::setBaseFile(FILE* baseFile){
     myBaseFile = baseFile;
 }
-FILE* PicturePreProcessing::getBaseFile(){
+FILE* PictureProcessing::getBaseFile(){
     return myBaseFile;
 }
 #pragma mark ---
 
-void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
+void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
     
     resize(pictureToProcess, pictureToProcess, Size(600,pictureToProcess.rows*600/pictureToProcess.cols));
     Mat pictureMask = pictureToProcess.clone();
@@ -102,13 +102,13 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     
 }
 
-void PicturePreProcessing::openBatchOfPictures(string directoryPath){
+void PictureProcessing::openBatchOfPictures(string directoryPath){
     
     browseDirectory(directoryPath);
 
 }
 
-bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
+bool PictureProcessing::addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
     bool pictureAdded;
     
     return pictureAdded;
@@ -116,7 +116,7 @@ bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
 
 #pragma mark -------------------------------------------
 #pragma mark private
-void PicturePreProcessing::browseDirectory(string path){
+void PictureProcessing::browseDirectory(string path){
     DIR* currentDirectory;
     const char* currentPath = path.c_str();
     if (!isDirectory(currentPath))
@@ -138,7 +138,7 @@ void PicturePreProcessing::browseDirectory(string path){
     closedir(currentDirectory); /* Fermeture du répertoire. */
 }
 
-void PicturePreProcessing::readDirectory(DIR* directory, string path){
+void PictureProcessing::readDirectory(DIR* directory, string path){
     struct dirent* ent = NULL;
     int i=1;
     while ((ent = readdir(directory)) != NULL){
@@ -153,7 +153,7 @@ void PicturePreProcessing::readDirectory(DIR* directory, string path){
             // on enregistre l'image obtenue
             imwrite(pathNewImg,pictureToProcess,parameters_jpg);
             pathNewImg +="\n";
-            fprintf(myBaseFile, pathNewImg.c_str());
+            fprintf(myBaseFile, "%s",pathNewImg.c_str());
             pictureToProcess.release();
             i++;
         }
@@ -164,7 +164,7 @@ void PicturePreProcessing::readDirectory(DIR* directory, string path){
     }
 }
 
-bool PicturePreProcessing::isJpegPicture(struct dirent *file){
+bool PictureProcessing::isJpegPicture(struct dirent *file){
     bool isJpeg;
     string file_name = file->d_name;
     size_t ext_pos = file_name.find_last_of( '.' );
@@ -191,7 +191,7 @@ bool PicturePreProcessing::isJpegPicture(struct dirent *file){
     return isJpeg;
 }
 
-bool PicturePreProcessing::isDirectory(const char* path){
+bool PictureProcessing::isDirectory(const char* path){
     bool isDir;
     if ((strchr(path, '.'))==NULL) {
         isDir = true;
