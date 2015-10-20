@@ -137,9 +137,11 @@ void PicturePreProcessing::readDirectory(DIR* directory, string path){
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
             
             this->preProcessPicture(pictureToProcess);
+            std::ostringstream img;
+            img << i;
             
             // on enregistre l'image obtenue
-            imwrite(path+"/"+to_string(i)+".jpg",pictureToProcess,parameters_jpg);
+            imwrite(path+"/"+/*to_string(i)*/img.str()+".jpg",pictureToProcess,parameters_jpg);
             i++;
         }
         else if (isDirectory(ent->d_name)){

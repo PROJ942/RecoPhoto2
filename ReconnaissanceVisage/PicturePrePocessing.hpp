@@ -30,6 +30,7 @@ public:
     
 private:
     cv::vector<int> parameters_jpg;
+    FILE* baseFile;
     
     void browseDirectory(std::string path);
     void readDirectory(DIR* directory, std::string path);
