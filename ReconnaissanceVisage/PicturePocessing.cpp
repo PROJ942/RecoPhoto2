@@ -45,7 +45,7 @@ void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
             coul=pictureMask.at<Vec3b>(j,i);
             float ratio1 = ((float)coul[2]-(float)coul[1])/((float)coul[2]+(float)coul[1]);
             float ratio2 = (float)coul[0]/((float)coul[2]+(float)coul[1]);
-            if(ratio1<0.02 || ratio1>0.45 || ratio2>0.5 || ratio2<0.1 || (int)coul[2]<=((int)coul[0]+25) || (int)coul[2]<=((int)coul[1]+15) || (int)coul[2]>245){
+            if((ratio1<0.02) || (ratio1>0.45) || (ratio2>0.5) || (ratio2<0.1) || ((int)coul[2]<=((int)coul[0]+25)) || ((int)coul[2]<=((int)coul[1]+15)) || ((int)coul[2]>245)){
                 coul[0]=255;
                 coul[1]=255;
                 coul[2]=255;
