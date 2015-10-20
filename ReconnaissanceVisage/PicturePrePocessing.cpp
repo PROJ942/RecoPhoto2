@@ -48,10 +48,10 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
     //Passage en niveau de gris
     cvtColor( pictureMask, pictureMask, CV_BGR2GRAY );
     //blur pour éliminer les artefacts
-    blur( pictureMask, pictureMask, Size(6,6) );
+    blur( pictureMask, pictureMask, Size(6,6) ); //tester filtre médian
     
     // Threshold pour avoir une image binaire
-    threshold(pictureMask,pictureMask,220,255,1);
+    threshold(pictureMask,pictureMask,220,255,1); //seuillage adaptatif ?
     
     /*Ouverture*/
     int erosion_size = 15;
@@ -94,8 +94,15 @@ void PicturePreProcessing::preProcessPicture(Mat &pictureToProcess){
 }
 
 void PicturePreProcessing::openBatchOfPictures(string directoryPath){
+    
     browseDirectory(directoryPath);
 
+}
+
+bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
+    bool pictureAdded;
+    
+    return pictureAdded;
 }
 
 #pragma mark ---
@@ -162,7 +169,7 @@ bool PicturePreProcessing::isJpegPicture(struct dirent *file){
          ext3.assign( file_name, ext_pos, file_name.size() - ext_pos );*/
     }
     
-    if(ext==jpg|ext==jpeg) {
+    if((ext==jpg)|| (ext==jpeg)) {
         isJpeg = true;
     }
     else isJpeg=false;

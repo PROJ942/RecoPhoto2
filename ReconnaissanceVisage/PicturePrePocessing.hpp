@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <vector>
 
 #endif /* PicturePrePocessing_hpp */
 
@@ -25,6 +26,7 @@ public:
     void initPicturePreProcessingWithJpegParameters();
     void preProcessPicture(cv::Mat &pictureToProcess);
     void openBatchOfPictures(std::string directoryPath);
+    bool addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess);
     
 private:
     cv::vector<int> parameters_jpg;
