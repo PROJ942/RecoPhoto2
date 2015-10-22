@@ -1,21 +1,27 @@
 //
-//  PicturePocessing.cpp
+//  PictureProcessing.cpp
 //  ReconnaissanceVisage
 //
 //  Created by Mikael on 12/10/2015.
 //  Copyright © 2015 mikael. All rights reserved.
 //
 
-#include "PicturePocessing.hpp"
+#include "PictureProcessing.hpp"
 
 using namespace cv;
 using namespace std;
 
 #pragma mark public
 
-void PictureProcessing::initPictureProcessingWithJpegParameters(){
+void PictureProcessing::initPictureProcessing(const char* pathToBase){
+    
+    baseFileSeparator = ';';
+    
     parameters_jpg.push_back(CV_IMWRITE_JPEG_QUALITY) ;
     parameters_jpg.push_back(100) ;
+    
+    myPathToBase = pathToBase;
+    myPathToBase+="/pictureBase.txt";
 }
 
 #pragma mark getters&setters
@@ -24,6 +30,18 @@ void PictureProcessing::setBaseFile(FILE* baseFile){
 }
 FILE* PictureProcessing::getBaseFile(){
     return myBaseFile;
+}
+void PictureProcessing::setMyPathToBase(std::string path){
+    myPathToBase = path;
+}
+std::string PictureProcessing::getMyPathToBase(){
+    return myPathToBase;
+}
+void PictureProcessing::setAnswerForServer(std::string answer){
+    answerForServer = answer;
+}
+std::string PictureProcessing::getAnswerForServer(){
+    return answerForServer;
 }
 #pragma mark ---
 
@@ -97,6 +115,7 @@ void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
     rectangle(pictureMask, boxMax, Scalar(255,255,255),1);
     cout<<"box max trouvee, largeur * hauteur : "<<boxMax.width<<" "<<boxMax.height<<endl;
 
+    cvtColor( pictureToProcess, pictureToProcess, CV_BGR2GRAY );
     // cropping the picture with biggest box found
     pictureToProcess=pictureToProcess(boxMax);
     
@@ -108,11 +127,84 @@ void PictureProcessing::openBatchOfPictures(string directoryPath){
 
 }
 
-bool PictureProcessing::addPictureToBase(FILE* baseFile,cv::Mat pictureToProcess){
+bool PictureProcessing::addPictureToBase(Mat pictureToProcess, string label){ //A faire !!!!!!!!
     bool pictureAdded;
+    int i;
+    myBaseFile = fopen(myPathToBase.c_str(), "a");
+
+    this->preProcessPicture(pictureToProcess);
+    std::ostringstream img;
+    img << i;
+    //A modifier pour vérifier si la personne existe et si oui combien de photos existent déjà si non créer le dossier
+    string pathNewImg =myPathToBase+"/"+/*to_string(i)*/img.str()+".jpg";
+    // on enregistre l'image obtenue
+    imwrite(pathNewImg,pictureToProcess,parameters_jpg);
+    pathNewImg +="\n";
+    fprintf(myBaseFile, "%s",pathNewImg.c_str());
+    pictureToProcess.release();
+
+    fclose(myBaseFile);
     
     return pictureAdded;
 }
+
+bool PictureProcessing::recognizeFace(cv::Mat pictureToProcess,std::string &predictedLabel){
+    bool recognized;
+    
+    //Preprocess the picture to extract the face
+    preProcessPicture(pictureToProcess);
+    
+    // These vectors hold the images and corresponding labels.
+    vector<Mat> images;
+    vector<string> labels;
+    vector<int> labelsNum;
+    
+    loadBaseOfPictures(images, labels);
+    extractLabelsNums(labels, labelsNum);
+
+    // The following lines create an LBPH model for
+    // face recognition and train it with the images and
+    // labels read from the given CSV file.
+    //
+    // The LBPHFaceRecognizer uses Extended Local Binary Patterns
+    // (it's probably configurable with other operators at a later
+    // point), and has the following default values
+    //
+    //      radius = 1
+    //      neighbors = 8
+    //      grid_x = 8
+    //      grid_y = 8
+    //
+    // So if you want a LBPH FaceRecognizer using a radius of
+    // 2 and 16 neighbors, call the factory method with:
+    //
+    //      cv::createLBPHFaceRecognizer(2, 16);
+    //
+    // And if you want a threshold (e.g. 123.0) call it with its default values:
+    //
+    //      cv::createLBPHFaceRecognizer(1,8,8,8,123.0)
+    //
+    Ptr<FaceRecognizer> model = createLBPHFaceRecognizer();
+    model->train(images, labelsNum);
+    // The following line predicts the label of a given
+    // test image:
+    int predictedLabelNum = model->predict(pictureToProcess);
+    //
+    // To get the confidence of a prediction call the model with:
+    //
+    //      int predictedLabel = -1;
+    //      double confidence = 0.0;
+    //      model->predict(testSample, predictedLabel, confidence);
+    //
+    double confidence = 0.0;
+    int label = -1;
+    model->predict(pictureToProcess,label,confidence);
+    findLabel(labels, labelsNum, predictedLabelNum, predictedLabel);
+    cout << "Recognized people : "<<predictedLabel<<" with confidence : "<<confidence << endl;
+    
+    return recognized;
+}
+
 
 #pragma mark -------------------------------------------
 #pragma mark private
@@ -135,14 +227,17 @@ void PictureProcessing::browseDirectory(string path){
     
     readDirectory(currentDirectory, path);
     
-    closedir(currentDirectory); /* Fermeture du répertoire. */
+    closedir(currentDirectory);
 }
 
 void PictureProcessing::readDirectory(DIR* directory, string path){
     struct dirent* ent = NULL;
     int i=1;
+    
     while ((ent = readdir(directory)) != NULL){
         if(isJpegPicture(ent)) {
+            myBaseFile = fopen(myPathToBase.c_str(), "a");
+
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
             
             this->preProcessPicture(pictureToProcess);
@@ -152,10 +247,10 @@ void PictureProcessing::readDirectory(DIR* directory, string path){
             string pathNewImg =path+"/"+/*to_string(i)*/img.str()+".jpg";
             // on enregistre l'image obtenue
             imwrite(pathNewImg,pictureToProcess,parameters_jpg);
-            pathNewImg +="\n";
-            fprintf(myBaseFile, "%s",pathNewImg.c_str());
+            fprintf(myBaseFile, "%s;%s\n",pathNewImg.c_str(),extractDirectoryName(path).c_str());
             pictureToProcess.release();
             i++;
+            fclose(myBaseFile);
         }
         else if (isDirectory(ent->d_name)){
             string subPath = path+"/"+ent->d_name;
@@ -198,4 +293,53 @@ bool PictureProcessing::isDirectory(const char* path){
     }
     else isDir=false;
     return isDir;
+}
+
+void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::vector<string>& labels){
+    string path, classlabel;
+    char line[MAX_SIZE]="";
+    myBaseFile = fopen(myPathToBase.c_str(), "r");
+    if (myBaseFile!=NULL) {
+    }
+    while (fgets(line, MAX_SIZE, myBaseFile) != NULL) {
+        stringstream liness(line);
+        getline(liness, path, baseFileSeparator);
+        getline(liness, classlabel);
+        if(!path.empty() && !classlabel.empty()) {
+            pictures.push_back(imread(path, 0));
+            labels.push_back(classlabel);
+        }
+    }
+    fclose(myBaseFile);
+}
+
+std::string PictureProcessing::extractDirectoryName(std::string path){
+    string directoryName;
+    size_t directory_pos = path.find_last_of( '/' );
+    
+    if ( directory_pos != string::npos )
+    {
+        // 3 manières d'extraire l'entension
+        directoryName = path.substr( directory_pos+1 );
+    }
+    return directoryName;
+}
+
+void PictureProcessing::extractLabelsNums(cv::vector<std::string>labels,cv::vector<int>&labelsNum){
+    int j=0;
+    labelsNum.push_back(j);
+    for (int i=1; i<labels.size(); i++) {
+        if (labels[i]!=labels[i-1]) {
+            j++;
+        }
+        labelsNum.push_back(j);
+    }
+}
+
+void PictureProcessing::findLabel(cv::vector<std::string>labels,cv::vector<int>labelsNum,int predictedLabelNum,std::string &predictedLabel){
+    int i=0;
+    while (labelsNum[i]!=predictedLabelNum) {
+        i++;
+    }
+    predictedLabel=labels[i];
 }

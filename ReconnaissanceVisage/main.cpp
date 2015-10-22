@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "PicturePrePocessing.hpp"
+#include "PictureProcessing.hpp"
 
 using namespace cv;
 using namespace std;
@@ -13,16 +13,12 @@ int main(int argc, char* argv[])
 {
 
     string path ="/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages";
-    PicturePreProcessing myPicturePreProcessor;
+    PictureProcessing myPictureProcessor;
+    myPictureProcessor.initPictureProcessing(path.c_str());
     
-    //chargement du fichier texte de la base
-    FILE* baseFile = NULL;
-    string basePath = path+"/pictureBase.txt";
-    baseFile = fopen(basePath.c_str(), "w");
-    myPicturePreProcessor.setBaseFile(baseFile);
     
-    // lecture et affichage  image
-	/*Mat img = imread(path+"/nathan_sartori/IMG_4385.jpg", 1 );
+    // load a picture, second attr of imread : >0 -> 3 ch. =0 -> grayscale
+	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );/*
 	imshow("Example1", img);
     waitKey(0);
 
@@ -32,10 +28,12 @@ int main(int argc, char* argv[])
     imshow("Cropped", img);
 
 	waitKey(0);*/
+    /*
+    myPictureProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages");*/
+    string result;
+    myPictureProcessor.recognizeFace(img,result);
+    cout<<"found : "<<result<<endl;
     
-    myPicturePreProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages");
-    
-    fclose(baseFile);
 	return 0;
 }
 
