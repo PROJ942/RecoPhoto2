@@ -41,6 +41,7 @@ private:
     cv::vector<int> parameters_jpg;
     FILE* myBaseFile;
     std::string myPathToBase;
+    std::string myPathToBaseFile;
     std::string answerForServer;
     char baseFileSeparator;
     
@@ -52,4 +53,6 @@ private:
     std::string extractDirectoryName(std::string path);
     void extractLabelsNums(cv::vector<std::string>labels,cv::vector<int>&labelsNum);
     void findLabel(cv::vector<std::string>labels,cv::vector<int>labelsNum,int predictedLabelNum,std::string &predictedLabel);
+    bool isLabelInTheBase(std::string label);
+    int findHighestPictureNumber(std::string label);
 };

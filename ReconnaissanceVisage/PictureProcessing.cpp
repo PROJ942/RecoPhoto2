@@ -21,7 +21,7 @@ void PictureProcessing::initPictureProcessing(const char* pathToBase){
     parameters_jpg.push_back(100) ;
     
     myPathToBase = pathToBase;
-    myPathToBase+="/pictureBase.txt";
+    myPathToBaseFile=myPathToBase+"/pictureBase.txt";
 }
 
 #pragma mark getters&setters
@@ -129,18 +129,35 @@ void PictureProcessing::openBatchOfPictures(string directoryPath){
 
 bool PictureProcessing::addPictureToBase(Mat pictureToProcess, string label){ //A faire !!!!!!!!
     bool pictureAdded;
-    int i;
-    myBaseFile = fopen(myPathToBase.c_str(), "a");
+    int pictureNum;
+    string pathNewImg="";
 
     this->preProcessPicture(pictureToProcess);
     std::ostringstream img;
-    img << i;
-    //A modifier pour vérifier si la personne existe et si oui combien de photos existent déjà si non créer le dossier
-    string pathNewImg =myPathToBase+"/"+/*to_string(i)*/img.str()+".jpg";
-    // on enregistre l'image obtenue
+    
+    //check if the person is already in the base
+    if (isLabelInTheBase(label)) {
+        //find the existing pictures name
+        pictureNum = findHighestPictureNumber(label);
+        pictureNum++;
+    }
+    else{
+        //create directory
+        string cmdSystem = "mkdir "+myPathToBase+"/"+label;
+        system(cmdSystem.c_str());
+        pictureNum = 1;
+    }
+    img << pictureNum;
+    
+    //Definition of the path of this new picture
+    pathNewImg =myPathToBase+"/"+label+"/"+img.str()+".jpg";
+    
+    myBaseFile = fopen(myPathToBaseFile.c_str(), "a");
+
+    //write the processed picture
     imwrite(pathNewImg,pictureToProcess,parameters_jpg);
     pathNewImg +="\n";
-    fprintf(myBaseFile, "%s",pathNewImg.c_str());
+    fprintf(myBaseFile, "%s;%s",pathNewImg.c_str(),label.c_str());
     pictureToProcess.release();
 
     fclose(myBaseFile);
@@ -236,7 +253,7 @@ void PictureProcessing::readDirectory(DIR* directory, string path){
     
     while ((ent = readdir(directory)) != NULL){
         if(isJpegPicture(ent)) {
-            myBaseFile = fopen(myPathToBase.c_str(), "a");
+            myBaseFile = fopen(myPathToBaseFile.c_str(), "a");
 
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
             
@@ -298,7 +315,7 @@ bool PictureProcessing::isDirectory(const char* path){
 void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::vector<string>& labels){
     string path, classlabel;
     char line[MAX_SIZE]="";
-    myBaseFile = fopen(myPathToBase.c_str(), "r");
+    myBaseFile = fopen(myPathToBaseFile.c_str(), "r");
     if (myBaseFile!=NULL) {
     }
     while (fgets(line, MAX_SIZE, myBaseFile) != NULL) {
@@ -319,7 +336,6 @@ std::string PictureProcessing::extractDirectoryName(std::string path){
     
     if ( directory_pos != string::npos )
     {
-        // 3 manières d'extraire l'entension
         directoryName = path.substr( directory_pos+1 );
     }
     return directoryName;
@@ -342,4 +358,54 @@ void PictureProcessing::findLabel(cv::vector<std::string>labels,cv::vector<int>l
         i++;
     }
     predictedLabel=labels[i];
+}
+
+bool PictureProcessing::isLabelInTheBase(std::string label){
+    char entry[MAX_SIZE]="";
+    myBaseFile = fopen(myPathToBaseFile.c_str(), "r");
+    while (fgets(entry,MAX_SIZE,myBaseFile)!=NULL) {
+        string entryString = entry;
+        if (entryString.find(label)!=string::npos) {
+            fclose(myBaseFile);
+            return true;
+        }
+    }
+    fclose(myBaseFile);
+    return false;
+}
+
+int PictureProcessing::findHighestPictureNumber(std::string label){
+    DIR* currentDirectory;
+    struct dirent* ent = NULL;
+    int highestNum = -1;
+    string directoryToBrowse = myPathToBase+"/"+label;
+    
+    if (!isDirectory(directoryToBrowse.c_str()))
+    {
+        printf("%s n'est pas un dossier", directoryToBrowse.c_str());
+        exit(-1);
+    }
+    
+    currentDirectory = opendir(directoryToBrowse.c_str());
+    
+    if (currentDirectory == NULL)
+    {
+        printf("The directory '%s' couldn't be opened\n", directoryToBrowse.c_str());
+        exit(-1);
+    }
+    
+    while ((ent = readdir(currentDirectory)) != NULL){
+        if(isJpegPicture(ent)) {
+            string fileName = ent->d_name;
+            size_t dotPosition = fileName.find_last_of('.');
+            string fileNameNum = fileName.substr(0,dotPosition);
+            int num = stoi(fileNameNum);
+            if (num>highestNum) {
+                highestNum = num;
+            }
+        }
+    }
+    
+    closedir(currentDirectory);
+    return highestNum;
 }

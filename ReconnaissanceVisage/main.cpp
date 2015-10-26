@@ -18,21 +18,13 @@ int main(int argc, char* argv[])
     
     
     // load a picture, second attr of imread : >0 -> 3 ch. =0 -> grayscale
-	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );/*
-	imshow("Example1", img);
-    waitKey(0);
-
-    myPicturePreProcessor.preProcessPicture(img);
-    
-    //Mat cropped=img(roi);
-    imshow("Cropped", img);
-
-	waitKey(0);*/
+	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );
     /*
-    myPictureProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages");*/
+    myPictureProcessor.openBatchOfPictures("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages");
     string result;
     myPictureProcessor.recognizeFace(img,result);
-    cout<<"found : "<<result<<endl;
+    cout<<"found : "<<result<<endl;*/
+    myPictureProcessor.addPictureToBase(img, "bob_denart");
     
 	return 0;
 }
