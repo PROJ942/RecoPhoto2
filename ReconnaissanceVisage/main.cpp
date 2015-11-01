@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
     }
     else{
     // load a picture, second attr of imread : >0 -> 3 ch. =0 -> grayscale
-    //Mat img = imread(argv[2], 1 );
-	Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );
+    Mat img = imread(argv[2], 1 );
+	//Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );
     
         if (strcmp(argv[3],"add")==0) {
             myPictureProcessor.addPictureToBase(img, "bob_denart");
