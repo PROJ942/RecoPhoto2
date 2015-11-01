@@ -11,9 +11,9 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    //string path = argv[1];
+    string path = argv[1];
     string toReturn="";
-    string path ="/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages";
+    //string path ="/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/BaseImages";
     PictureProcessing myPictureProcessor;
     myPictureProcessor.initPictureProcessing(path.c_str());
     
