@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     myPictureProcessor.initPictureProcessing(path.c_str());
     
     if (strcmp(argv[2], "createBase")==0) {
-        cout<<"path to base : "<<argv[1]<<endl;
+        cout<<"path to base : "<<argv[1]<<endl<<"creating picture base..."<<endl;
         myPictureProcessor.openBatchOfPictures(argv[1]);
     }
     else{
@@ -27,9 +27,11 @@ int main(int argc, char* argv[])
 	//Mat img = imread("/Users/mikael/Documents/applications_moi/ReconnaissanceVisage/ReconnaissanceVisage/moi.jpg", 1 );
     
         if (strcmp(argv[3],"add")==0) {
+            cout<<"adding new picture to base..."<<endl;
             myPictureProcessor.addPictureToBase(img, "bob_denart");
         }
         else if (strcmp(argv[3],"reco")==0){
+            cout<<"recognizing person..."<<endl;
             myPictureProcessor.recognizeFace(img,toReturn);
             cout<<"found : "<<toReturn<<endl;
         }
