@@ -98,7 +98,7 @@ void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
     //erode(imgGray,imgGray,element);
     
     // Recherche de contours
-    vector<vector<Point>> contours;
+    vector<vector<Point> > contours;
     vector<Vec4i> hierarchie;
     findContours(pictureMask, contours,  hierarchie, RETR_TREE,  CHAIN_APPROX_SIMPLE, Point(0,0));
     cout<<"nb de contours trouves : "<<contours.size()<<endl;
