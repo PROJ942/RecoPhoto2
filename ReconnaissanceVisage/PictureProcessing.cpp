@@ -254,6 +254,9 @@ void PictureProcessing::readDirectory(DIR* directory, string path){
     while ((ent = readdir(directory)) != NULL){
         if(isJpegPicture(ent)) {
             myBaseFile = fopen(myPathToBaseFile.c_str(), "a");
+            if (myBaseFile==NULL) {
+                cout<<"faile to open base file"<<endl;
+            }
 
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
             
