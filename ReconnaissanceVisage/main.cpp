@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
     myPictureProcessor.initPictureProcessing(path.c_str());
     
     if (strcmp(argv[2], "createBase")==0) {
+        cout<<"path to base : "<<argv[1]<<endl;
         myPictureProcessor.openBatchOfPictures(argv[1]);
     }
     else{
