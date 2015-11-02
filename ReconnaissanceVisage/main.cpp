@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     
         if (strcmp(argv[3],"add")==0) {
             cout<<"adding new picture to base..."<<endl;
-            myPictureProcessor.addPictureToBase(img, "bob_denart");
+            myPictureProcessor.addPictureToBase(img, argv[4]);
         }
         else if (strcmp(argv[3],"reco")==0){
             cout<<"recognizing person..."<<endl;
