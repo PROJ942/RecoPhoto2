@@ -156,8 +156,8 @@ bool PictureProcessing::addPictureToBase(Mat pictureToProcess, string label){ //
 
     //write the processed picture
     imwrite(pathNewImg,pictureToProcess,parameters_jpg);
-    pathNewImg +="\n";
-    fprintf(myBaseFile, "%s;%s",pathNewImg.c_str(),label.c_str());
+    
+    fprintf(myBaseFile, "%s;%s\n",pathNewImg.c_str(),label.c_str());
     pictureToProcess.release();
 
     fclose(myBaseFile);
@@ -259,7 +259,7 @@ void PictureProcessing::readDirectory(DIR* directory, string path){
             }
 
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
-            
+            cout<<"nom de l'image : "<<ent->d_name<<" et taille : "<<pictureToProcess.cols<<" "<<pictureToProcess.rows<<endl;
             this->preProcessPicture(pictureToProcess);
             std::ostringstream img;
             img << i;
@@ -319,7 +319,8 @@ void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::ve
     string path, classlabel;
     char line[MAX_SIZE]="";
     myBaseFile = fopen(myPathToBaseFile.c_str(), "r");
-    if (myBaseFile!=NULL) {
+    if (myBaseFile==NULL) {
+      cout<<"fail to open : "<<myPathToBaseFile<<endl;
     }
     while (fgets(line, MAX_SIZE, myBaseFile) != NULL) {
         stringstream liness(line);
@@ -331,6 +332,7 @@ void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::ve
         }
     }
     fclose(myBaseFile);
+    cout<<"number of pictures loaded : "<<pictures.size()<<endl;
 }
 
 std::string PictureProcessing::extractDirectoryName(std::string path){
