@@ -88,14 +88,13 @@ void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
     erode(pictureMask,pictureMask,element);
     dilate(pictureMask,pictureMask, element);
     
-    /*Fermeture*/
+    /*dilatation*/
     int dilatation_size = 5;
     element = getStructuringElement(MORPH_ELLIPSE,
                                     Size( 2*dilatation_size + 1, 2*dilatation_size+1 ),
                                     Point( dilatation_size, dilatation_size ));
     
     dilate(pictureMask,pictureMask, element);
-    //erode(imgGray,imgGray,element);
     
     // Recherche de contours
     vector<vector<Point> > contours;
@@ -116,7 +115,7 @@ void PictureProcessing::preProcessPicture(Mat &pictureToProcess){
     cout<<"box max trouvee, largeur * hauteur : "<<boxMax.width<<" "<<boxMax.height<<endl;
 
     cvtColor( pictureToProcess, pictureToProcess, CV_BGR2GRAY );
-    // cropping the picture with biggest box found
+    //decoupe de l'image avec la plus grande box trouvee
     pictureToProcess=pictureToProcess(boxMax);
     
 }
@@ -135,26 +134,26 @@ bool PictureProcessing::addPictureToBase(Mat pictureToProcess, string label){ //
     this->preProcessPicture(pictureToProcess);
     std::ostringstream img;
     
-    //check if the person is already in the base
+    //on verifie si la personne est deja dans la base
     if (isLabelInTheBase(label)) {
-        //find the existing pictures name
+        //on trouve le numero de photo le plus eleve parmi les existants
         pictureNum = findHighestPictureNumber(label);
         pictureNum++;
     }
     else{
-        //create directory
+        //creation du repertoire
         string cmdSystem = "mkdir "+myPathToBase+"/"+label;
         system(cmdSystem.c_str());
         pictureNum = 1;
     }
     img << pictureNum;
     
-    //Definition of the path of this new picture
+    //Definition du chemin de la nouvelle photo
     pathNewImg =myPathToBase+"/"+label+"/"+img.str()+".jpg";
     
     myBaseFile = fopen(myPathToBaseFile.c_str(), "a");
 
-    //write the processed picture
+    //enregistrement de la photo traitee
     imwrite(pathNewImg,pictureToProcess,parameters_jpg);
     
     fprintf(myBaseFile, "%s;%s\n",pathNewImg.c_str(),label.c_str());
@@ -168,10 +167,10 @@ bool PictureProcessing::addPictureToBase(Mat pictureToProcess, string label){ //
 bool PictureProcessing::recognizeFace(cv::Mat pictureToProcess,std::string &predictedLabel){
     bool recognized;
     
-    //Preprocess the picture to extract the face
+    //pretraitement de la photo pour extraire le visage
     preProcessPicture(pictureToProcess);
     
-    // These vectors hold the images and corresponding labels.
+    //ces vecteurs doivent contenir les photos de la base et leur label
     vector<Mat> images;
     vector<string> labels;
     vector<int> labelsNum;
@@ -217,7 +216,7 @@ bool PictureProcessing::recognizeFace(cv::Mat pictureToProcess,std::string &pred
     int label = -1;
     model->predict(pictureToProcess,label,confidence);
     findLabel(labels, labelsNum, predictedLabelNum, predictedLabel);
-    cout << "Recognized people : "<<predictedLabel<<" with confidence : "<<confidence << endl;
+    cout << "Personne reconnue : "<<predictedLabel<<" avec une distance (la plus petite est la mieux) : "<<confidence << endl;
     
     return recognized;
 }
@@ -238,7 +237,7 @@ void PictureProcessing::browseDirectory(string path){
     
     if (currentDirectory == NULL)
     {
-        printf("The directory '%s' couldn't be opened\n", currentPath);
+        printf("Le dossier '%s' n'a pas pu etre ouvert\n", currentPath);
         exit(-1);
     }
     
@@ -255,7 +254,7 @@ void PictureProcessing::readDirectory(DIR* directory, string path){
         if(isJpegPicture(ent)) {
             myBaseFile = fopen(myPathToBaseFile.c_str(), "a");
             if (myBaseFile==NULL) {
-                cout<<"faile to open base file : "<<myPathToBaseFile <<endl;
+                cout<<"Echec a l'ouverture du fichier de la base : "<<myPathToBaseFile <<endl;
             }
 
             Mat pictureToProcess = imread(path+"/"+ent->d_name);
@@ -320,7 +319,7 @@ void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::ve
     char line[MAX_SIZE]="";
     myBaseFile = fopen(myPathToBaseFile.c_str(), "r");
     if (myBaseFile==NULL) {
-      cout<<"fail to open : "<<myPathToBaseFile<<endl;
+      cout<<"Echec a l'ouverture de : "<<myPathToBaseFile<<endl;
     }
     while (fgets(line, MAX_SIZE, myBaseFile) != NULL) {
         stringstream liness(line);
@@ -332,7 +331,7 @@ void PictureProcessing::loadBaseOfPictures(cv::vector<cv::Mat>& pictures, cv::ve
         }
     }
     fclose(myBaseFile);
-    cout<<"number of pictures loaded : "<<pictures.size()<<endl;
+    cout<<"nombre de photos chargees : "<<pictures.size()<<endl;
 }
 
 std::string PictureProcessing::extractDirectoryName(std::string path){
@@ -395,7 +394,7 @@ int PictureProcessing::findHighestPictureNumber(std::string label){
     
     if (currentDirectory == NULL)
     {
-        printf("The directory '%s' couldn't be opened\n", directoryToBrowse.c_str());
+        printf("Le dossier '%s' n'a pas pu etre ouvert\n", directoryToBrowse.c_str());
         exit(-1);
     }
     
