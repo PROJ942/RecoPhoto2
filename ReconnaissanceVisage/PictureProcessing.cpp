@@ -216,7 +216,12 @@ bool PictureProcessing::recognizeFace(cv::Mat pictureToProcess,std::string &pred
     int label = -1;
     model->predict(pictureToProcess,label,confidence);
     findLabel(labels, labelsNum, predictedLabelNum, predictedLabel);
-    cout << "Personne reconnue : "<<predictedLabel<<" avec une distance (la plus petite est la mieux) : "<<confidence << endl;
+    if (confidence<40) {
+        cout << "Personne reconnue : "<<predictedLabel<<" avec une distance (la plus petite est la mieux) : "<<confidence << endl;
+    }
+    else{
+        cout << "Personne non reconnue !"<<endl;
+    }
     
     return recognized;
 }
